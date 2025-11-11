@@ -1,0 +1,67 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: |
+            ## Zed Extension ${{ github.ref_name }}
+
+            See [CHANGELOG.md](https://github.com/ason-format/zed-extension/blob/main/CHANGELOG.md) for details.
+
+            ### Installation
+
+            Manual installation:
+
+            ```bash
+            mkdir -p ~/.config/zed/extensions
+            git clone https://github.com/ason-format/zed-extension.git ~/.config/zed/extensions/ason
+            cd ~/.config/zed/extensions/ason
+            git checkout ${{ github.ref_name }}
+            npm install
+            ```
+
+            ### Usage
+
+            Use in Zed scripts:
+
+            ```javascript
+            const ason = require('ason');
+            const result = ason.compressJson('{"test": 1}');
+            console.log(result.ason);
+            ```
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Success notification
+        run: |
+          echo "✓ GitHub Release created"
+          echo "✓ To publish to Zed Extensions, submit PR to:"
+          echo "  https://github.com/zed-industries/extensions"

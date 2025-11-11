@@ -1,0 +1,11 @@
+[extension]
+id = "ason"
+name = "ASON Compression"
+description = "Compress and decompress JSON using ASON format (20-60% token reduction for LLMs)"
+version = "1.0.0"
+schema_version = 1
+authors = ["ASON Format <https://github.com/ason-format>"]
+repository = "https://github.com/ason-format/ason"
+
+[extension.language_servers.ason]
+name = "ason"
