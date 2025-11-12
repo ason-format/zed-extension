@@ -1,5 +1,5 @@
 [package]
-name = "mcp_server_ason"
+name = "ason_mcp"
 version = "1.0.0"
 edition = "2021"
 publish = false
@@ -7,7 +7,7 @@ license = "MIT"
 repository = "https://github.com/ason-format/zed-extension"
 
 [lib]
-path = "src/mcp_server_ason.rs"
+path = "src/ason-mcp.rs"
 crate-type = ["cdylib"]
 
 [dependencies]

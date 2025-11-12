@@ -1,0 +1,16 @@
+{
+  // ASON MCP Server Configuration
+  // Configure compression settings for ASON format
+
+  // Indentation level for output (0 = no indentation, 1 = compact, 2+ = pretty print)
+  "indent": 1,
+
+  // Field delimiter (comma "," is default, can use "|" or other characters)
+  "delimiter": ",",
+
+  // Enable object references to avoid duplication (&obj0, &obj1, etc.)
+  "use_references": true,
+
+  // Enable value dictionary for repeated values (#0, #1, etc.)
+  "use_dictionary": true
+}
