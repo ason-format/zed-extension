@@ -1,13 +1,10 @@
-[extension]
-id = "ason-mcp"
+id = "mcp-ason"
 name = "ASON MCP Server"
 description = "Model Context Protocol server for ASON compression/decompression. Reduces JSON tokens by 20-60% for LLM interactions."
 version = "1.0.0"
 schema_version = 1
 authors = ["ASON Format <https://github.com/ason-format>"]
 repository = "https://github.com/ason-format/zed-extension"
-license = "MIT"
 
-[mcp_servers.ason]
-command = "npx"
-args = ["-y", "@ason-format/mcp-server@latest"]
+[context_servers.ason]
+name = "ASON MCP Server"

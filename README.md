@@ -7,10 +7,10 @@ Model Context Protocol (MCP) extension for Zed that provides ASON compression/de
 
 ## ✨ Features
 
-- **🤖 AI Assistant Integration**: Use ASON tools directly in Zed's AI chat
-- **📦 Zero Configuration**: Works out of the box with `npx`
-- **🔄 Auto-Update**: Always uses the latest version of ASON MCP server
-- **⚡ Fast**: Rust-based extension with minimal overhead
+- **🤖 AI Assistant Integration**: Use ASON tools directly in Zed's AI Assistant
+- **📦 Zero Configuration**: Works out of the box, auto-installs dependencies
+- **🔄 Auto-Update**: Automatically installs and uses latest MCP server from npm
+- **⚡ Fast**: Native Rust extension compiled to WebAssembly
 
 ### Available Tools
 
@@ -24,8 +24,8 @@ Model Context Protocol (MCP) extension for Zed that provides ASON compression/de
 ### Prerequisites
 
 - [Zed Editor](https://zed.dev) (latest version)
-- [Node.js](https://nodejs.org) v18+ (for npx)
-- [Rust](https://rustup.rs) (only for development)
+- [Node.js](https://nodejs.org) v18+ (runtime requirement)
+- [Rust](https://rustup.rs) (only for local development)
 
 ### Option 1: From Zed Extensions (Recommended)
 
@@ -99,53 +99,49 @@ Returns detailed metrics:
 
 ## 🔧 Configuration
 
-### Manual Configuration (Optional)
+### Enable the Context Server
 
-If you prefer manual configuration, add to your Zed `settings.json`:
+After installing the extension, enable it in your Zed `settings.json`:
 
 ```json
 {
   "context_servers": {
-    "ason": {
-      "command": "npx",
-      "args": ["-y", "@ason-format/mcp-server@latest"]
+    "ason-mcp/ason": {
+      "source": "extension",
+      "enabled": true,
+      "settings": {}
     }
   }
 }
 ```
 
-### Custom MCP Server Path
+The extension will automatically:
+1. Install `@ason-format/mcp-server@latest` from npm
+2. Start the MCP server using Node.js
+3. Make ASON tools available in the AI Assistant
 
-To use a specific version or local installation:
-
-```json
-{
-  "context_servers": {
-    "ason": {
-      "command": "node",
-      "args": ["/path/to/mcp-server/dist/index.js"]
-    }
-  }
-}
-```
+No additional configuration needed!
 
 ## 📊 How It Works
 
 This extension provides a thin Rust wrapper around the [@ason-format/mcp-server](https://www.npmjs.com/package/@ason-format/mcp-server) npm package:
 
-1. **Extension loads** → Rust code returns the command to start MCP server
-2. **MCP server starts** → Uses `npx` to run latest version
-3. **Tools available** → AI assistant can use ASON compression tools
-4. **Zero maintenance** → Always uses latest npm package
+1. **Extension loads** → Rust code initializes in Zed
+2. **MCP server installs** → Uses `npm_install_package` API to get latest version
+3. **Server starts** → Executes Node.js with installed package path
+4. **Tools available** → AI assistant can use ASON compression tools
+5. **Auto-updates** → Checks and installs latest version on each launch
 
 ## 🏗️ Architecture
 
 ```
-Zed Editor
+Zed AI Assistant
     ↓ loads
-Rust Extension (this repo)
+Rust Extension (WebAssembly)
+    ↓ installs
+@ason-format/mcp-server (npm)
     ↓ executes
-npx @ason-format/mcp-server@latest
+Node.js + MCP Server
     ↓ provides
 MCP Tools (compress/decompress/stats/configure)
     ↓ uses
@@ -173,14 +169,14 @@ cargo build --release
 
 ```
 zed-extension/
-├── Cargo.toml          # Rust dependencies
+├── Cargo.toml          # Rust dependencies (zed_extension_api, serde, schemars)
 ├── extension.toml      # Zed extension manifest
-├── package.json        # npm package metadata
 ├── src/
-│   └── lib.rs         # Extension implementation
+│   └── lib.rs         # Extension implementation (context_server_command)
 ├── scripts/
 │   └── release.sh     # Release automation
-└── README.md
+├── CHANGELOG.md        # Version history
+└── README.md           # This file
 ```
 
 ## 🎯 Use Cases
