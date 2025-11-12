@@ -12,49 +12,81 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18.x'
-
-      - name: Install dependencies
-        run: npm ci
-
       - name: Extract version from tag
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          echo "Extracting changelog for version ${VERSION}"
+
+          # Extract the section for this version from CHANGELOG.md
+          CHANGELOG=$(sed -n "/## \[${VERSION}\]/,/## \[/p" CHANGELOG.md | sed '$d' | tail -n +2)
+
+          # If changelog is empty, use a default message
+          if [ -z "$CHANGELOG" ]; then
+            CHANGELOG="See [CHANGELOG.md](https://github.com/ason-format/zed-extension/blob/main/CHANGELOG.md) for details."
+          fi
+
+          # Save to output (handle multiline)
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
+          name: ASON MCP Server ${{ github.ref_name }}
           body: |
-            ## Zed Extension ${{ github.ref_name }}
+            # ASON MCP Server for Zed ${{ github.ref_name }}
 
-            See [CHANGELOG.md](https://github.com/ason-format/zed-extension/blob/main/CHANGELOG.md) for details.
+            Model Context Protocol extension for Zed that provides ASON compression/decompression tools in the AI assistant.
 
-            ### Installation
+            ## Changes
 
-            Manual installation:
+            ${{ steps.changelog.outputs.CHANGELOG }}
+
+            ## Installation
+
+            ### Via Zed Extensions (Recommended)
+
+            1. Open Zed Editor
+            2. Press `Cmd+Shift+X` (Extensions)
+            3. Search for "ASON MCP Server"
+            4. Click **Install**
+
+            ### Manual Installation
 
             ```bash
-            mkdir -p ~/.config/zed/extensions
-            git clone https://github.com/ason-format/zed-extension.git ~/.config/zed/extensions/ason
-            cd ~/.config/zed/extensions/ason
-            git checkout ${{ github.ref_name }}
-            npm install
+            # In Zed:
+            # Cmd+Shift+P → "zed: install dev extension"
+            # Select this repository folder
             ```
 
-            ### Usage
+            ## Configuration
 
-            Use in Zed scripts:
+            Enable in your Zed `settings.json`:
 
-            ```javascript
-            const ason = require('ason');
-            const result = ason.compressJson('{"test": 1}');
-            console.log(result.ason);
+            ```json
+            {
+              "context_servers": {
+                "ason-mcp/ason": {
+                  "source": "extension",
+                  "enabled": true,
+                  "settings": {}
+                }
+              }
+            }
             ```
+
+            ## Documentation
+
+            - [README](https://github.com/ason-format/zed-extension#readme)
+            - [CHANGELOG](https://github.com/ason-format/zed-extension/blob/main/CHANGELOG.md)
+            - [Publishing Guide](https://github.com/ason-format/zed-extension/blob/main/PUBLISHING.md)
           draft: false
           prerelease: false
         env:
@@ -62,6 +94,9 @@ jobs:
 
       - name: Success notification
         run: |
-          echo "✓ GitHub Release created"
-          echo "✓ To publish to Zed Extensions, submit PR to:"
-          echo "  https://github.com/zed-industries/extensions"
+          echo "✓ GitHub Release created: ${{ github.ref_name }}"
+          echo "✓ Release URL: https://github.com/ason-format/zed-extension/releases/tag/${{ github.ref_name }}"
+          echo ""
+          echo "Next steps:"
+          echo "  1. Verify release at: https://github.com/ason-format/zed-extension/releases"
+          echo "  2. Submit to Zed Extensions: https://github.com/zed-industries/extensions"
