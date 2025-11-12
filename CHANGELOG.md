@@ -10,47 +10,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2025-01-11
 
 ### Added
-- **Initial Release** - Zed IDE integration for ASON compression
-- **JavaScript API** - Complete API for Zed scripting:
-  - `compressJson(jsonText)` - Compress JSON with detailed statistics
-  - `decompressAson(asonText)` - Decompress ASON to formatted JSON
-  - `getStats(jsonText)` - Analyze compression metrics without compressing
-  - `configure(config)` - Update global compressor settings
-- **Configuration Support**:
-  - `indent` - Indentation level (default: 1)
-  - `delimiter` - Field delimiter (default: ",")
-  - `useReferences` - Enable object references (default: true)
-  - `useDictionary` - Enable value dictionary (default: true)
-- **Detailed Statistics** - All functions return comprehensive stats:
-  - Original token count
-  - Compressed token count
-  - Reduction percentage (formatted to 2 decimals)
-  - Original size in bytes
-  - Compressed size in bytes
-  - Byte savings
-- **ASON Preview** - `getStats()` includes ASON preview without modifying data
-- **Error Handling** - Graceful error handling with descriptive messages
-- **Extension Manifest** - `extension.toml` configured for Zed
+- **Initial Release** - MCP Server extension for Zed Editor
+- **Rust-Based Extension** - Native Zed extension using official API
+- **MCP Integration** - Full Model Context Protocol support
+- **AI Assistant Tools**:
+  - `compress_json` - Compress JSON to ASON format (20-60% reduction)
+  - `decompress_ason` - Decompress ASON back to JSON (lossless)
+  - `get_compression_stats` - Analyze compression metrics
+  - `configure_compressor` - Customize compression settings
+- **Auto-Update** - Always uses latest `@ason-format/mcp-server` via npx
+- **Zero Configuration** - Works out of the box with default settings
+- **Context Server Command** - Implements `context_server_command` trait method
 
-### Features
-- Zero-dependency core logic (only requires `@ason-format/ason`)
-- CommonJS module compatible with Zed's Node.js runtime
-- Returns structured objects for easy integration
-- Global configuration persists across function calls
-- JSON output formatted with 2-space indentation
+### Technical
+- Built with Rust using `zed_extension_api`
+- Compiles to WebAssembly for Zed integration
+- Uses `npx` for automatic MCP server resolution
+- Minimal overhead - thin wrapper around npm package
+
+### Architecture
+```
+Zed → Rust Extension → npx → @ason-format/mcp-server → @ason-format/ason
+```
 
 ### Dependencies
-- `@ason-format/ason@^1.1.2` - Core ASON library
+- `zed_extension_api@0.2.0` - Official Zed extension API
+- `@ason-format/mcp-server@latest` (runtime via npx)
 
-### Installation
-Manual installation to `~/.config/zed/extensions/ason/`
+### Requirements
+- Zed Editor (latest version)
+- Node.js v18+ (for npx)
+- Rust (for development only)
 
 ### Compatibility
-- Zed IDE with Node.js extension support
-- Future: Zed Extensions marketplace (pending submission)
+- ✅ Zed AI Assistant
+- ✅ MCP Protocol (stdio transport)
+- ✅ macOS, Linux, Windows
 
-### Note
-Zed's extension API is evolving. This extension provides core functionality as a Node.js module. Full IDE integration (commands, keybindings, UI) will be available when Zed's extension capabilities mature.
+### Installation
+- Via Zed Extensions (pending submission)
+- Local dev installation: `zed: install dev extension`
 
 [Unreleased]: https://github.com/ason-format/zed-extension/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/ason-format/zed-extension/releases/tag/v1.0.0
