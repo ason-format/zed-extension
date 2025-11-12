@@ -87,7 +87,10 @@ impl zed::Extension for AsonExtension {
 
         // Pass configuration as environment variables to MCP server
         let env = vec![
-            ("ASON_INDENT".to_string(), settings_struct.indent.to_string()),
+            (
+                "ASON_INDENT".to_string(),
+                settings_struct.indent.to_string(),
+            ),
             ("ASON_DELIMITER".to_string(), settings_struct.delimiter),
             (
                 "ASON_USE_REFERENCES".to_string(),
@@ -126,7 +129,10 @@ impl zed::Extension for AsonExtension {
                 {
                     // Replace placeholders with actual values
                     default_settings = default_settings
-                        .replace("\"indent\": 1", &format!("\"indent\": {}", ason_settings.indent))
+                        .replace(
+                            "\"indent\": 1",
+                            &format!("\"indent\": {}", ason_settings.indent),
+                        )
                         .replace(
                             "\"delimiter\": \",\"",
                             &format!("\"delimiter\": \"{}\"", ason_settings.delimiter),
