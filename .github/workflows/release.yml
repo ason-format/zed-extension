@@ -23,7 +23,8 @@ jobs:
           echo "Extracting changelog for version ${VERSION}"
 
           # Extract the section for this version from CHANGELOG.md
-          CHANGELOG=$(sed -n "/## \[${VERSION}\]/,/## \[/p" CHANGELOG.md | sed '$d' | tail -n +2)
+          # Stop at the next ## heading or the end of the "Added/Changed/Fixed" sections
+          CHANGELOG=$(awk "/## \[${VERSION}\]/,/^## \[|^### Requirements|^\[Unreleased\]/" CHANGELOG.md | sed '1d' | sed '/^## \[/d' | sed '/^### Requirements/,$d' | sed '/^\[Unreleased\]/,$d')
 
           # If changelog is empty, use a default message
           if [ -z "$CHANGELOG" ]; then
