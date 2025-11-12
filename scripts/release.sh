@@ -20,16 +20,33 @@ echo -e "${BLUE}║   Zed Extension Release Script         ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
 echo ""
 
-# Get current version
-CURRENT_VERSION=$(node -p "require('./package.json').version")
+# Get current version from extension.toml
+CURRENT_VERSION=$(grep '^version = ' extension.toml | sed 's/version = "\(.*\)"/\1/')
 echo -e "Current version: ${YELLOW}v${CURRENT_VERSION}${NC}"
+
+# Function to bump version
+bump_version() {
+  local version=$1
+  local type=$2
+  local major minor patch
+
+  IFS='.' read -r major minor patch <<< "$version"
+
+  case $type in
+    patch) patch=$((patch + 1)) ;;
+    minor) minor=$((minor + 1)); patch=0 ;;
+    major) major=$((major + 1)); minor=0; patch=0 ;;
+  esac
+
+  echo "${major}.${minor}.${patch}"
+}
 
 # Select version bump type
 echo ""
 echo -e "${GREEN}Select version bump:${NC}"
-echo "  1) patch - Bug fixes (${CURRENT_VERSION} → $(npm version patch --no-git-tag-version | tail -1 && npm version ${CURRENT_VERSION} --no-git-tag-version >/dev/null 2>&1))"
-echo "  2) minor - New features (${CURRENT_VERSION} → $(npm version minor --no-git-tag-version | tail -1 && npm version ${CURRENT_VERSION} --no-git-tag-version >/dev/null 2>&1))"
-echo "  3) major - Breaking changes (${CURRENT_VERSION} → $(npm version major --no-git-tag-version | tail -1 && npm version ${CURRENT_VERSION} --no-git-tag-version >/dev/null 2>&1))"
+echo "  1) patch - Bug fixes (${CURRENT_VERSION} → $(bump_version $CURRENT_VERSION patch))"
+echo "  2) minor - New features (${CURRENT_VERSION} → $(bump_version $CURRENT_VERSION minor))"
+echo "  3) major - Breaking changes (${CURRENT_VERSION} → $(bump_version $CURRENT_VERSION major))"
 echo ""
 read -p "Enter choice (1-3): " BUMP_CHOICE
 
@@ -46,15 +63,17 @@ esac
 # Bump version
 echo ""
 echo -e "${BLUE}Bumping version...${NC}"
-NEW_VERSION=$(npm version $BUMP_TYPE --no-git-tag-version)
-NEW_VERSION=${NEW_VERSION#v}
+NEW_VERSION=$(bump_version $CURRENT_VERSION $BUMP_TYPE)
 
-# Also update extension.toml
-if [ -f "extension.toml" ]; then
-  sed -i.bak "s/^version = .*/version = \"${NEW_VERSION}\"/" extension.toml
-  rm -f extension.toml.bak
-  echo -e "${GREEN}✓ Updated extension.toml${NC}"
-fi
+# Update extension.toml
+sed -i.bak "s/^version = .*/version = \"${NEW_VERSION}\"/" extension.toml
+rm -f extension.toml.bak
+echo -e "${GREEN}✓ Updated extension.toml${NC}"
+
+# Update Cargo.toml
+sed -i.bak "s/^version = .*/version = \"${NEW_VERSION}\"/" Cargo.toml
+rm -f Cargo.toml.bak
+echo -e "${GREEN}✓ Updated Cargo.toml${NC}"
 
 echo -e "New version: ${GREEN}v${NEW_VERSION}${NC}"
 echo ""
@@ -73,7 +92,7 @@ echo ""
 read -p "Press ENTER when you've updated CHANGELOG.md..."
 
 # Commit and tag
-git add package.json extension.toml CHANGELOG.md package-lock.json 2>/dev/null || true
+git add Cargo.toml Cargo.lock extension.toml CHANGELOG.md 2>/dev/null || true
 git commit -m "Release v${NEW_VERSION}"
 
 TAG_NAME="v${NEW_VERSION}"
@@ -98,9 +117,17 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   echo -e "Version: ${GREEN}v${NEW_VERSION}${NC}"
   echo -e "Tag: ${YELLOW}${TAG_NAME}${NC}"
   echo ""
-  echo -e "${YELLOW}Next steps (Manual):${NC}"
-  echo "  1. GitHub Actions will create GitHub Release"
+  echo -e "${YELLOW}Next steps:${NC}"
+  echo "  1. Create GitHub Release manually:"
+  echo "     https://github.com/ason-format/zed-extension/releases/new"
+  echo ""
   echo "  2. Submit to Zed Extensions:"
-  echo "     https://github.com/zed-industries/extensions"
+  echo "     • Fork: https://github.com/zed-industries/extensions"
+  echo "     • Add submodule: git submodule add https://github.com/ason-format/zed-extension extensions/ason-mcp"
+  echo "     • Create PR to zed-industries/extensions"
+  echo ""
+  echo "  3. Documentation:"
+  echo "     • Include extension.toml and Cargo.toml"
+  echo "     • Zed will auto-compile on install"
   echo ""
 fi
