@@ -16,9 +16,10 @@ You can customize compression settings in your Zed settings:
       "enabled": true,
       "settings": {
         "indent": 1,           // Indentation level (0-4)
-        "delimiter": ",",      // Field delimiter character
-        "use_references": true,  // Enable object references (&obj0)
-        "use_dictionary": true   // Enable value dictionary (#0)
+        "delimiter": "|",      // Field delimiter character (pipe recommended)
+        "use_references": true,  // Enable $var references
+        "use_sections": true,    // Enable @section organization
+        "use_tabular": true      // Enable key:[N]{fields} tabular arrays
       }
     }
   }
@@ -32,19 +33,24 @@ You can customize compression settings in your Zed settings:
 - `1` - Compact format (recommended)
 - `2+` - Pretty print with specified indentation
 
-#### `delimiter` (string, default: ",")
-- Separator for fields in uniform arrays
-- Common values: `","`, `"|"`, `";"`, `"\t"`
+#### `delimiter` (string, default: "|")
+- Separator for fields in tabular arrays
+- Common values: `"|"` (pipe - recommended), `","`, `"\t"`
 
 #### `use_references` (boolean, default: true)
-- Enable object references to avoid duplication
-- Objects referenced as `&obj0`, `&obj1`, etc.
-- Reduces token count for repeated objects
+- Enable `$var` references to avoid duplication
+- Repeated values referenced as `$email`, `$city`, etc.
+- Reduces token count for repeated strings/values
 
-#### `use_dictionary` (boolean, default: true)
-- Enable value dictionary for repeated values
-- Values referenced as `#0`, `#1`, etc.
-- Reduces token count for repeated strings/numbers
+#### `use_sections` (boolean, default: true)
+- Enable `@section` organization for objects
+- Groups related data with `@metadata`, `@billing`, etc.
+- Saves tokens on deep structures
+
+#### `use_tabular` (boolean, default: true)
+- Enable `key:[N]{fields}` tabular arrays
+- CSV-like format for uniform arrays
+- Most efficient for 2+ uniform objects
 
 ## Available Tools
 
@@ -77,17 +83,17 @@ Ask the assistant: "Compress this JSON using ASON"
 
 Result:
 ```
-users:[2]@id,name,age
-1,Alice,25
-2,Bob,30
+users:[2]{id,name,age}
+1|Alice|25
+2|Bob|30
 ```
 
 ### Decompress ASON
 ```
 Ask the assistant: "Decompress this ASON to JSON"
-users:[2]@id,name,age
-1,Alice,25
-2,Bob,30
+users:[2]{id,name,age}
+1|Alice|25
+2|Bob|30
 ```
 
 Result:
