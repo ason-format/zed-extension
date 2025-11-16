@@ -16,17 +16,21 @@ struct AsonMcpExtensionSettings {
     #[serde(default = "default_indent")]
     indent: u8,
 
-    /// Field delimiter (comma "," is default)
+    /// Field delimiter (pipe "|" is default for better token efficiency)
     #[serde(default = "default_delimiter")]
     delimiter: String,
 
-    /// Enable object references to avoid duplication (&obj0, &obj1, etc.)
+    /// Enable $var references to avoid duplication
     #[serde(default = "default_use_references")]
     use_references: bool,
 
-    /// Enable value dictionary for repeated values (#0, #1, etc.)
-    #[serde(default = "default_use_dictionary")]
-    use_dictionary: bool,
+    /// Enable @section organization for objects
+    #[serde(default = "default_use_sections")]
+    use_sections: bool,
+
+    /// Enable key:[N]{fields} tabular arrays for uniform data
+    #[serde(default = "default_use_tabular")]
+    use_tabular: bool,
 }
 
 fn default_indent() -> u8 {
@@ -34,14 +38,18 @@ fn default_indent() -> u8 {
 }
 
 fn default_delimiter() -> String {
-    ",".to_string()
+    "|".to_string()
 }
 
 fn default_use_references() -> bool {
     true
 }
 
-fn default_use_dictionary() -> bool {
+fn default_use_sections() -> bool {
+    true
+}
+
+fn default_use_tabular() -> bool {
     true
 }
 
@@ -51,7 +59,8 @@ impl Default for AsonMcpExtensionSettings {
             indent: default_indent(),
             delimiter: default_delimiter(),
             use_references: default_use_references(),
-            use_dictionary: default_use_dictionary(),
+            use_sections: default_use_sections(),
+            use_tabular: default_use_tabular(),
         }
     }
 }
@@ -97,8 +106,12 @@ impl zed::Extension for AsonExtension {
                 settings_struct.use_references.to_string(),
             ),
             (
-                "ASON_USE_DICTIONARY".to_string(),
-                settings_struct.use_dictionary.to_string(),
+                "ASON_USE_SECTIONS".to_string(),
+                settings_struct.use_sections.to_string(),
+            ),
+            (
+                "ASON_USE_TABULAR".to_string(),
+                settings_struct.use_tabular.to_string(),
             ),
         ];
 
@@ -134,7 +147,7 @@ impl zed::Extension for AsonExtension {
                             &format!("\"indent\": {}", ason_settings.indent),
                         )
                         .replace(
-                            "\"delimiter\": \",\"",
+                            "\"delimiter\": \"|\"",
                             &format!("\"delimiter\": \"{}\"", ason_settings.delimiter),
                         )
                         .replace(
@@ -142,8 +155,12 @@ impl zed::Extension for AsonExtension {
                             &format!("\"use_references\": {}", ason_settings.use_references),
                         )
                         .replace(
-                            "\"use_dictionary\": true",
-                            &format!("\"use_dictionary\": {}", ason_settings.use_dictionary),
+                            "\"use_sections\": true",
+                            &format!("\"use_sections\": {}", ason_settings.use_sections),
+                        )
+                        .replace(
+                            "\"use_tabular\": true",
+                            &format!("\"use_tabular\": {}", ason_settings.use_tabular),
                         );
                 }
             }

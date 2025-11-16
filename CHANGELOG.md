@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-preview] - 2025-01-14
+
+### Changed
+- **BREAKING: ASON 2.0 Support** - Extension now uses ASON 2.0 format via updated MCP server
+- **Configuration Options Updated**:
+  - ❌ Removed `use_dictionary` setting (no longer exists in ASON 2.0)
+  - ✅ Added `use_sections` - Enable `@section` organization for objects (default: true)
+  - ✅ Added `use_tabular` - Enable `key:[N]{fields}` tabular arrays (default: true)
+  - Changed default `delimiter` from `","` to `"|"` (pipe is more token-efficient)
+- **Syntax Updates**:
+  - AI Assistant now outputs `users:[2]{id,name}` instead of `users:[2]@id,name`
+  - Tabular data uses pipe delimiter: `1|Alice|25` instead of `1,Alice,25`
+  - References use `$var` semantic names (e.g., `$email`, `$city`)
+  - Sections use `@section` for grouping related objects
+- **Updated Documentation**:
+  - README.md updated with ASON 2.0 compression techniques
+  - Installation instructions updated with new configuration options
+  - All examples show correct ASON 2.0 syntax
+
+### Dependencies
+- Extension now installs `@ason-format/mcp-server@^2.0.0-preview` (from `^1.x`)
+- Transitively uses `@ason-format/ason@^2.0.0-preview`
+
+### Migration Notes
+- **Zed Settings**: If you have custom context server settings:
+  ```json
+  {
+    "context_servers": {
+      "ason-mcp": {
+        "settings": {
+          "delimiter": "|",          // Changed from ","
+          "use_sections": true,      // New (replaces use_dictionary)
+          "use_tabular": true        // New (replaces use_dictionary)
+          // Remove "use_dictionary" if present
+        }
+      }
+    }
+  }
+  ```
+- **Output Format**: ASON output from AI Assistant will look different but is more token-efficient
+- Extension auto-installs latest MCP server version, so no manual update needed
+
 ## [1.0.0] - 2025-01-12
 
 ### Added

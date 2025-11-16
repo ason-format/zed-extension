@@ -1,16 +1,19 @@
 {
-  // ASON MCP Server Configuration
+  // ASON 2.0 MCP Server Configuration
   // Configure compression settings for ASON format
 
   // Indentation level for output (0 = no indentation, 1 = compact, 2+ = pretty print)
   "indent": 1,
 
-  // Field delimiter (comma "," is default, can use "|" or other characters)
-  "delimiter": ",",
+  // Field delimiter (pipe "|" is default for better token efficiency, can use "," or other)
+  "delimiter": "|",
 
-  // Enable object references to avoid duplication (&obj0, &obj1, etc.)
+  // Enable $var references to avoid duplication
   "use_references": true,
 
-  // Enable value dictionary for repeated values (#0, #1, etc.)
-  "use_dictionary": true
+  // Enable @section organization for objects
+  "use_sections": true,
+
+  // Enable key:[N]{fields} tabular arrays for uniform data
+  "use_tabular": true
 }

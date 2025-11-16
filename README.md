@@ -69,18 +69,18 @@ Ask the assistant: "Compress this JSON using ASON"
 The assistant will use the `compress_json` tool and return:
 
 ```
-users:[2]@id,name,age
-1,Alice,25
-2,Bob,30
+users:[2]{id,name,age}
+1|Alice|25
+2|Bob|30
 ```
 
 ### Decompress ASON
 
 ```
 Ask the assistant: "Decompress this ASON to JSON"
-users:[2]@id,name,age
-1,Alice,25
-2,Bob,30
+users:[2]{id,name,age}
+1|Alice|25
+2|Bob|30
 ```
 
 Returns the original JSON structure.
@@ -219,10 +219,11 @@ ASON (Aliased Serialization Object Notation) is a token-optimized JSON compressi
 - Multiple compression techniques
 
 **Compression Techniques:**
-1. **Uniform Arrays**: `[2]@id,name,age`
-2. **Object References**: `&obj0`
-3. **Value Dictionary**: `value #0`
-4. **Path Flattening**: `user.profile.name:Alice`
+1. **Sections**: `@section` - Organize related objects
+2. **Tabular Arrays**: `key:[N]{fields}` - CSV-like format for uniform arrays
+3. **Semantic References**: `$var` - Deduplicate repeated values
+4. **Pipe Delimiter**: `|` - More token-efficient than commas
+5. **Dot Notation**: `user.profile.name:Alice` - Flatten nested objects
 
 **Learn More:**
 - [ASON Core](https://github.com/ason-format/ason)
